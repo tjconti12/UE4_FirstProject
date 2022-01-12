@@ -16,8 +16,17 @@ AFloorSwitch::AFloorSwitch()
 	// Then make the door and switch children of the TriggerBox
 	RootComponent = TriggerBox;
 
-	TriggerBox->OnComponentBeginOverlap.AddDynamic(this, &AFloorSwitch::OnOverlapBegin);
-	TriggerBox->OnComponentEndOverlap.AddDynamic(this, &AFloorSwitch::OnOverlapEnd);
+	// Allows you to specify the type of collision for this actor
+	TriggerBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly); // QueryOnly only does overlap events, rather than full physics
+	// Sets object type collision (can be done also in the engine in blue prints)
+	TriggerBox->SetCollisionObjectType(ECollisionChannel::ECC_WorldStatic);
+	// Prevents collisin with all object types (resets it so we can set it manually)
+	TriggerBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	// Then we can set it manually to an overlap with only a pawn
+	TriggerBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+
+	// Sets the shape of the TriggerBox
+	TriggerBox->SetBoxExtent(FVector(62.f, 62.f, 32.f));
 
 	FloorSwitch = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FloorSwitch"));
 	FloorSwitch->SetupAttachment(GetRootComponent());
@@ -31,6 +40,9 @@ AFloorSwitch::AFloorSwitch()
 void AFloorSwitch::BeginPlay()
 {
 	Super::BeginPlay();
+	// Added to BeginPlay() to ensure that the object is constructed before we bind the functions
+	TriggerBox->OnComponentBeginOverlap.AddDynamic(this, &AFloorSwitch::OnOverlapBegin);
+	TriggerBox->OnComponentEndOverlap.AddDynamic(this, &AFloorSwitch::OnOverlapEnd);
 	
 }
 

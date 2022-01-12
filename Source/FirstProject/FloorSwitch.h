@@ -36,7 +36,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	/** The function to call once floor switch is stepped on by the character
-	* Got this functions parameters from peaking definition
+	* Got this functions parameters from peaking definition of OnComponentBeginOverlap
 	*/
 	// Must be a UFUNCTION!
 	UFUNCTION()
