@@ -35,6 +35,12 @@ public:
 	// Sets default values for this character's properties
 	AMain();
 
+	// Stores the fvectors of the pickups that have been collected
+	TArray<FVector> PickupLocations;
+
+	UFUNCTION(BlueprintCallable)
+	void ShowPickupLocations();
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Enums")
 	EMovementStatus MovementStatus;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Enums")

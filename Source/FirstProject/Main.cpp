@@ -7,6 +7,7 @@
 // #include "Engine/World.h";
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 // Sets default values
 AMain::AMain()
@@ -298,4 +299,20 @@ void AMain::ShiftKeyDown()
 void AMain::ShiftKeyUp()
 {
 	bShiftKeyDown = false;
+}
+
+void AMain::ShowPickupLocations()
+{
+	/* Standard For loop
+	for (int32 i = 0; i < PickupLocations.Num(); i++)
+	{
+		UKismetSystemLibrary::DrawDebugSphere(this, PickupLocations[i], 25.f, 8, FLinearColor::Green, 10.f, .5f);
+	}
+	*/
+	
+	// Range Version of the For loop
+	for (FVector Location : PickupLocations)
+	{
+		UKismetSystemLibrary::DrawDebugSphere(this, Location, 25.f, 8, FLinearColor::Green, 10.f, .5f);
+	}
 }
