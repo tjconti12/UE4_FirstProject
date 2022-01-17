@@ -21,7 +21,7 @@ void AExplosive::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor
 		// If the cast is unsuccessful, then Main will be a null pointer
 		if (Main)
 		{
-
+			Main->DecrementHealth(Damage);
 		}
 	}
 }

@@ -3,6 +3,7 @@
 
 #include "MainAminInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Main.h"
 
 void UMainAminInstance::NativeInitializeAnimation()
 {
@@ -12,6 +13,10 @@ void UMainAminInstance::NativeInitializeAnimation()
 		// Which pawn owns this AnimInstance
 		// Will initialize it if its a nullptr (will happen on first time)
 		Pawn = TryGetPawnOwner();
+		if (Pawn)
+		{
+			Main = Cast<AMain>(Pawn);
+		}
 	}
 }
 
@@ -40,6 +45,11 @@ void UMainAminInstance::UpdateAnimationProperties()
 		// The Pawn MovementComponent has a function to see if the pawn is falling (in the air)
 		// Then sets the bIsInAir appropriately 
 		bIsInAir = Pawn->GetMovementComponent()->IsFalling();
+
+		if (Main == nullptr)
+		{
+			Main = Cast<AMain>(Pawn);
+		}
 
 
 	}
