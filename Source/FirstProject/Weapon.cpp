@@ -24,9 +24,10 @@ void AWeapon::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* O
 	if ((WeaponState == EWeaponState::EWS_Pickup) && OtherActor)
 	{
 		AMain* Main = Cast<AMain>(OtherActor);
-		if (Main)
+		if (Main && !Main->bAttacking)
 		{
 			Main->SetActiveOverlappingItem(this);
+			WeaponState = EWeaponState::EWS_Equipped;
 		}
 	}
 
@@ -55,6 +56,7 @@ void AWeapon::Equip(AMain* Char)
 		// For pawns as well
 		SkeletalMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 
+
 		SkeletalMesh->SetSimulatePhysics(false);
 
 		const USkeletalMeshSocket* RightHandSocket = Char->GetMesh()->GetSocketByName("RightHandSocket");
@@ -65,6 +67,7 @@ void AWeapon::Equip(AMain* Char)
 
 
 			Char->SetEquippedWeapon(this);
+			Char->SetActiveOverlappingItem(nullptr);
 		}
 		if (OnEquipSound)
 		{

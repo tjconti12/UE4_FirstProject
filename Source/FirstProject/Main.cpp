@@ -66,6 +66,8 @@ AMain::AMain()
 
 	StaminaDrainRate = 25.f;
 	MinSprintStamina = 50.f;
+
+	bCycleAttack = false;
 }
 
 // Called when the game starts or when spawned
@@ -207,7 +209,7 @@ void AMain::MoveForward(float Value)
 {
 	// Good idea to check to make sure the Characters Controller is not a null pointer
 	// And to check that Value is not 0 (the button is being pressed)
-	if (Controller != nullptr && Value != 0.0f)
+	if (Controller != nullptr && Value != 0.0f && !bAttacking)
 	{
 		// Gets the direction the controller is facing
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -227,7 +229,7 @@ void AMain::MoveRight(float Value)
 {
 	// Good idea to check to make sure the Characters Controller is not a null pointer
 	// And to check that Value is not 0 (the button is being pressed)
-	if (Controller != nullptr && Value != 0.0f)
+	if (Controller != nullptr && Value != 0.0f && !bAttacking)
 	{
 		// Gets the direction the controller is facing
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -266,13 +268,20 @@ void AMain::LMBDown()
 {
 	bLMBDown = true;
 
-	if (ActiveOverlappingItem)
+	if (ActiveOverlappingItem && !bAttacking)
 	{
 		AWeapon* Weapon = Cast<AWeapon>(ActiveOverlappingItem);
 		if (Weapon)
 		{
 			Weapon->Equip(this);
 			SetActiveOverlappingItem(nullptr);
+		}
+	}
+	else if (EquippedWeapon)
+	{
+		if (!bAttacking)
+		{
+			Attack();
 		}
 	}
 }
@@ -348,4 +357,31 @@ void AMain::SetEquippedWeapon(AWeapon* WeaponToSet)
 		EquippedWeapon->Destroy();
 	}
 	EquippedWeapon = WeaponToSet;
+}
+
+void AMain::Attack()
+{
+	bAttacking = true;
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && CombatMontage)
+	{
+		if (bCycleAttack) {
+			AnimInstance->Montage_Play(CombatMontage, 1.35f);
+			AnimInstance->Montage_JumpToSection(FName("Attack_2"), CombatMontage);
+			bCycleAttack = !bCycleAttack;
+		}
+		else {
+			AnimInstance->Montage_Play(CombatMontage, 1.35f);
+			AnimInstance->Montage_JumpToSection(FName("Attack_1"), CombatMontage);
+			bCycleAttack = !bCycleAttack;
+		}
+		
+	}
+}
+
+void AMain::AttackEnd()
+{
+	bAttacking = false;
+	SetActiveOverlappingItem(nullptr);
 }
