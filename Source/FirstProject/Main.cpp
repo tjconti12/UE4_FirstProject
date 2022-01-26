@@ -11,6 +11,8 @@
 #include "Weapon.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Enemy.h"
 
 // Sets default values
 AMain::AMain()
@@ -70,6 +72,9 @@ AMain::AMain()
 	MinSprintStamina = 50.f;
 
 	bCycleAttack = false;
+
+	InterpSpeed = 15.f;
+	bInterpToEnemy = false;
 }
 
 // Called when the game starts or when spawned
@@ -169,6 +174,19 @@ void AMain::Tick(float DeltaTime)
 		;
 	}
 
+	if (bInterpToEnemy && CombatTarget)
+	{
+		FRotator LookAtYaw = GetLookAtRotationYaw(CombatTarget->GetActorLocation());
+		FRotator InterpRotation = FMath::RInterpTo(GetActorRotation(), LookAtYaw, DeltaTime, InterpSpeed);
+		SetActorRotation(InterpRotation);
+	}
+}
+
+FRotator AMain::GetLookAtRotationYaw(FVector Target)
+{
+	FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Target);
+	FRotator LookAtRotationYaw(0.f, LookAtRotation.Yaw, 0);
+	return LookAtRotationYaw;
 }
 
 // Called to bind functionality to input
@@ -211,7 +229,7 @@ void AMain::MoveForward(float Value)
 {
 	// Good idea to check to make sure the Characters Controller is not a null pointer
 	// And to check that Value is not 0 (the button is being pressed)
-	if (Controller != nullptr && Value != 0.0f && !bAttacking)
+	if (Controller != nullptr && Value != 0.0f)
 	{
 		// Gets the direction the controller is facing
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -231,7 +249,7 @@ void AMain::MoveRight(float Value)
 {
 	// Good idea to check to make sure the Characters Controller is not a null pointer
 	// And to check that Value is not 0 (the button is being pressed)
-	if (Controller != nullptr && Value != 0.0f && !bAttacking)
+	if (Controller != nullptr && Value != 0.0f)
 	{
 		// Gets the direction the controller is facing
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -364,6 +382,7 @@ void AMain::SetEquippedWeapon(AWeapon* WeaponToSet)
 void AMain::Attack()
 {
 	bAttacking = true;
+	SetInterpToEnemy(true);
 
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && CombatMontage)
@@ -388,6 +407,7 @@ void AMain::AttackEnd()
 {
 	bAttacking = false;
 	SetActiveOverlappingItem(nullptr);
+	SetInterpToEnemy(false);
 }
 
 void AMain::PlaySwingSound()
@@ -397,4 +417,9 @@ void AMain::PlaySwingSound()
 		UGameplayStatics::PlaySound2D(this, EquippedWeapon->SwingSound);
 	}
 	
+}
+
+void AMain::SetInterpToEnemy(bool Interp)
+{
+	bInterpToEnemy = Interp;
 }
