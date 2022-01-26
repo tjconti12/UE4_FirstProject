@@ -21,13 +21,13 @@ AWeapon::AWeapon()
 void AWeapon::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	Super::OnOverlapBegin(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
+	
 	if ((WeaponState == EWeaponState::EWS_Pickup) && OtherActor)
 	{
 		AMain* Main = Cast<AMain>(OtherActor);
 		if (Main && !Main->bAttacking)
 		{
 			Main->SetActiveOverlappingItem(this);
-			WeaponState = EWeaponState::EWS_Equipped;
 		}
 	}
 
@@ -68,6 +68,7 @@ void AWeapon::Equip(AMain* Char)
 
 			Char->SetEquippedWeapon(this);
 			Char->SetActiveOverlappingItem(nullptr);
+			WeaponState = EWeaponState::EWS_Equipped;
 		}
 		if (OnEquipSound)
 		{
