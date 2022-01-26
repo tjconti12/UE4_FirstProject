@@ -18,9 +18,13 @@ AEnemy::AEnemy()
 
 	CombatSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CombatSphere"));
 	CombatSphere->SetupAttachment(GetRootComponent());
-	CombatSphere->InitSphereRadius(75.f);
+	CombatSphere->InitSphereRadius(100.f);
 
 	bOverlappingCombatSphere = false;
+
+	Health = 75.f;
+	MaxHealth = 100.f;
+	Damage = 10.f;
 }
 
 // Called when the game starts or when spawned
@@ -111,7 +115,7 @@ void AEnemy::MoveToTarget(AMain* Target)
 		// Needs both the MoveRequest and FNavPath structs
 		FAIMoveRequest MoveRequest;
 		MoveRequest.SetGoalActor(Target);
-		MoveRequest.SetAcceptanceRadius(30.0f);
+		MoveRequest.SetAcceptanceRadius(40.0f);
 
 		// The information gets filled in for us. We just need to declare it
 		FNavPathSharedPtr NavPath;

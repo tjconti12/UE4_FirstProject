@@ -9,6 +9,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Weapon.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 // Sets default values
 AMain::AMain()
@@ -376,6 +378,8 @@ void AMain::Attack()
 			AnimInstance->Montage_JumpToSection(FName("Attack_1"), CombatMontage);
 			bCycleAttack = !bCycleAttack;
 		}
+
+	
 		
 	}
 }
@@ -384,4 +388,13 @@ void AMain::AttackEnd()
 {
 	bAttacking = false;
 	SetActiveOverlappingItem(nullptr);
+}
+
+void AMain::PlaySwingSound()
+{
+	if (EquippedWeapon->SwingSound)
+	{
+		UGameplayStatics::PlaySound2D(this, EquippedWeapon->SwingSound);
+	}
+	
 }

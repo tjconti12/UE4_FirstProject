@@ -165,4 +165,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attack")
 	bool bCycleAttack;
+
+	UFUNCTION(BlueprintCallable)
+	void PlaySwingSound();
 };
