@@ -65,6 +65,8 @@ public:
 	// To Randomize how often the enemy attacks
 	FTimerHandle AttackTimer;
 
+	FTimerHandle TimerHandle;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	float AttackMinTime;
 
@@ -120,4 +122,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void AttackEnd();
+
+	// UFUNCTION(BlueprintCallable)
+	// void PlayAttackWait();
 };

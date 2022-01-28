@@ -104,6 +104,12 @@ void AEnemy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent
 				Main->SetCombatTarget(this);
 				CombatTarget = Main;
 				bOverlappingCombatSphere = true;
+				UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+				if (AnimInstance)
+				{
+					AnimInstance->Montage_Play(CombatMontage, 0.5f);
+					AnimInstance->Montage_JumpToSection(FName("WaitAttack"), CombatMontage);
+				}
 				float AttackTime = FMath::FRandRange(AttackMinTime, AttackMaxTime);
 				GetWorldTimerManager().SetTimer(AttackTimer, this, &AEnemy::Attack, AttackTime);
 			}
@@ -119,11 +125,23 @@ void AEnemy::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, 
 		{
 			Main->SetCombatTarget(nullptr);
 			bOverlappingCombatSphere = false;
-			if (EnemyMovementStatus != EEnemyMovementStatus::EMS_Attacking)
+			bAttacking = false;
+			UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+			if (AnimInstance && EnemyMovementStatus != EEnemyMovementStatus::EMS_Attacking)
 			{
-				MoveToTarget(Main);
-				CombatTarget = nullptr;
+				AnimInstance->Montage_Play(CombatMontage, 1.35f);
+				AnimInstance->Montage_JumpToSection(FName("WaitEnd"), CombatMontage);
 			}
+			// if (EnemyMovementStatus != EEnemyMovementStatus::EMS_Attacking)
+			// {
+			float WaitTime = 1.0f;
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]()
+				{
+					MoveToTarget(Main);
+					CombatTarget = nullptr;
+				}, WaitTime, false);
+				
+			// }
 			GetWorldTimerManager().ClearTimer(AttackTimer);
 		}
 	}
@@ -197,6 +215,8 @@ void AEnemy::DeactivateCollision()
 
 void AEnemy::Attack()
 {
+	UE_LOG(LogTemp, Warning, TEXT("Attack function"))
+
 	if (AIController)
 	{
 		AIController->StopMovement();
@@ -210,6 +230,7 @@ void AEnemy::Attack()
 		{
 			AnimInstance->Montage_Play(CombatMontage, 1.35f);
 			AnimInstance->Montage_JumpToSection(FName("Attack"), CombatMontage);
+			
 		}
 		if (SwingSound)
 		{
@@ -223,7 +244,17 @@ void AEnemy::AttackEnd()
 	bAttacking = false;
 	if (bOverlappingCombatSphere)
 	{
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if (AnimInstance)
+		{
+			AnimInstance->Montage_Play(CombatMontage, 0.5f);
+			AnimInstance->Montage_JumpToSection(FName("WaitAttack"), CombatMontage);
+		}
 		float AttackTime = FMath::FRandRange(AttackMinTime, AttackMaxTime);
 		GetWorldTimerManager().SetTimer(AttackTimer, this, &AEnemy::Attack, AttackTime);
+	}
+	else 
+	{
+		// Would love to call MoveToTarget(Main) here, but I don't have a ref to main
 	}
 }
