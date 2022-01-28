@@ -73,6 +73,8 @@ void AWeapon::Equip(AMain* Char)
 {
 	if (Char)
 	{
+		SetInstigator(Char->GetController());
+
 		// Prevents the camera from zooming in if the weapon gets between the camera and the character
 		SkeletalMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 		// For pawns as well
@@ -124,6 +126,10 @@ void AWeapon::CombatOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AAc
 			if (Enemy->HitSound)
 			{
 				UGameplayStatics::PlaySound2D(this, Enemy->HitSound);
+			}
+			if (DamageTypeClass)
+			{
+				UGameplayStatics::ApplyDamage(Enemy, Damage, WeaponInstigator, this, DamageTypeClass);
 			}
 		}
 	}
