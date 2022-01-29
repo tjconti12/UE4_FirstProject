@@ -12,6 +12,7 @@
 #include "Animation/AnimInstance.h"
 #include "TimerManager.h"
 #include "Components/CapsuleComponent.h"
+#include "MainPlayerController.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -96,7 +97,22 @@ void AEnemy::AgroSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, 
 
 void AEnemy::AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-
+	if (OtherActor)
+	{
+		AMain* Main = Cast<AMain>(OtherActor);
+		if (Main)
+		{
+			if (Main->CombatTarget == this)
+			{
+				Main->SetCombatTarget(nullptr);
+			}
+			Main->SetHasCombatTarget(false);
+			if (Main->MainPlayerController)
+			{
+				Main->MainPlayerController->RemoveEnemyHealthBar();
+			}
+		}
+	}
 }
 
 void AEnemy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -107,6 +123,12 @@ void AEnemy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent
 			if (Main)
 			{
 				Main->SetCombatTarget(this);
+				Main->SetHasCombatTarget(true);
+				if (Main->MainPlayerController)
+				{
+					Main->MainPlayerController->DisplayEnemyHealthBar();
+				}
+
 				CombatTarget = Main;
 				bOverlappingCombatSphere = true;
 				UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -128,10 +150,6 @@ void AEnemy::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, 
 		AMain* Main = Cast<AMain>(OtherActor);
 		if (Main)
 		{
-			if (Main->CombatTarget == this)
-			{
-				Main->SetCombatTarget(nullptr);
-			}
 			bOverlappingCombatSphere = false;
 			bAttacking = false;
 			UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -279,7 +297,9 @@ float AEnemy::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEv
 	if (Health - DamageAmount <= 0.f)
 	{
 		Health -= DamageAmount;
+		SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Dead);
 		Die();
+		
 	}
 	else
 	{
@@ -291,7 +311,14 @@ float AEnemy::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEv
 
 void AEnemy::Die()
 {
-	
+	SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Dead);
+	CombatCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	AgroSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CombatSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	bAttacking = false;
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance)
 	{
@@ -300,15 +327,9 @@ void AEnemy::Die()
 		AnimInstance->Montage_JumpToSection(FName("Death"), CombatMontage);
 
 	}
-	SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Dead);
-
-	CombatCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	AgroSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	CombatSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	bAttacking = false;
+	
 }
 
 void AEnemy::DeathEnd()
