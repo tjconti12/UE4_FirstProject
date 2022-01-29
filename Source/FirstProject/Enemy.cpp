@@ -29,7 +29,7 @@ AEnemy::AEnemy()
 	CombatSphere->InitSphereRadius(100.f);
 
 	CombatCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("CombatCollision"));
-	CombatCollision->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("EnemySocket"));
+	CombatCollision->SetupAttachment(GetMesh(), FName("EnemySocket"));
 
 	bOverlappingCombatSphere = false;
 
@@ -151,19 +151,21 @@ void AEnemy::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, 
 		if (Main)
 		{
 			bOverlappingCombatSphere = false;
-			bAttacking = false;
+			/*bAttacking = false;*/
 			UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 			if (AnimInstance && EnemyMovementStatus != EEnemyMovementStatus::EMS_Attacking)
 			{
 				AnimInstance->Montage_Play(CombatMontage, 1.35f);
 				AnimInstance->Montage_JumpToSection(FName("WaitEnd"), CombatMontage);
 			}
-			if (EnemyMovementStatus != EEnemyMovementStatus::EMS_Attacking)
+			if (!bAttacking && AnimInstance)
 			{
 				MoveToTarget(Main);
 				CombatTarget = nullptr;
+				AnimInstance->Montage_Stop(1.f, CombatMontage);
 			}
 			
+
 			GetWorldTimerManager().ClearTimer(AttackTimer);
 		}
 	}
@@ -269,15 +271,16 @@ void AEnemy::Attack()
 
 void AEnemy::AttackEnd()
 {
+	/*SetEnemyMovementStatus(EEnemyMovementStatus::EMS_MoveToTarget);*/
 	bAttacking = false;
 	if (bOverlappingCombatSphere)
 	{
-		/*UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 		if (AnimInstance)
 		{
 			AnimInstance->Montage_Play(CombatMontage, 0.5f);
 			AnimInstance->Montage_JumpToSection(FName("WaitAttack"), CombatMontage);
-		}*/
+		}
 		float AttackTime = FMath::FRandRange(AttackMinTime, AttackMaxTime);
 		GetWorldTimerManager().SetTimer(AttackTimer, this, &AEnemy::Attack, AttackTime);
 	}

@@ -78,6 +78,9 @@ AMain::AMain()
 	bInterpToEnemy = false;
 
 	bHasCombatTarget = false;
+
+	bMovingForward = false;
+	bMovingRight = false;
 }
 
 // Called when the game starts or when spawned
@@ -108,7 +111,14 @@ void AMain::Tick(float DeltaTime)
 			{
 				SetStaminaStatus(EStaminaStatus::ESS_BelowMinimum);
 			}
-			SetMovementStatus(EMovementStatus::EMS_Sprinting);
+			if (bMovingForward || bMovingRight)
+			{
+				SetMovementStatus(EMovementStatus::EMS_Sprinting);
+			}
+			else {
+				SetMovementStatus(EMovementStatus::EMS_Normal);
+			}
+			
 		}
 		else // Shift key up
 		{
@@ -136,7 +146,15 @@ void AMain::Tick(float DeltaTime)
 			else 
 			{
 				Stamina -= DeltaStamina;
-				SetMovementStatus(EMovementStatus::EMS_Sprinting);
+				if (bMovingForward || bMovingRight)
+				{
+					SetMovementStatus(EMovementStatus::EMS_Sprinting);
+				}
+				else
+				{
+					SetMovementStatus(EMovementStatus::EMS_Normal);
+				}
+				
 			}
 		}
 		else // Shift key up
@@ -243,6 +261,8 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 // Called to Move Character Forward
 void AMain::MoveForward(float Value)
 {
+	// MoveForward gets called every frame. So we set it to false, and it will only change to true if there is a controller input
+	bMovingForward = false;
 	// Good idea to check to make sure the Characters Controller is not a null pointer
 	// And to check that Value is not 0 (the button is being pressed)
 	if (Controller != nullptr && Value != 0.0f && MovementStatus != EMovementStatus::EMS_Dead)
@@ -258,11 +278,14 @@ void AMain::MoveForward(float Value)
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		// Adds movement in the Direction we are facing, for the Value passed in (will be 1.0)
 		AddMovementInput(Direction, Value);
+
+		bMovingForward = true;
 	}
 }
 
 void AMain::MoveRight(float Value)
 {
+	bMovingRight = false;
 	// Good idea to check to make sure the Characters Controller is not a null pointer
 	// And to check that Value is not 0 (the button is being pressed)
 	if (Controller != nullptr && Value != 0.0f && MovementStatus != EMovementStatus::EMS_Dead)
@@ -279,6 +302,7 @@ void AMain::MoveRight(float Value)
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		// Adds movement in the Direction we are facing, for the Value passed in (will be 1.0)
 		AddMovementInput(Direction, Value);
+		bMovingRight = true;
 	}
 }
 
