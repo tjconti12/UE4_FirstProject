@@ -94,6 +94,8 @@ void AMain::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (MovementStatus == EMovementStatus::EMS_Dead) return;
+
 	float DeltaStamina = StaminaDrainRate * DeltaTime;
 
 	switch (StaminaStatus)
@@ -215,7 +217,7 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	// Add Jump Action
 	// IE_Pressed is the button pressed
 	// ACharacter already has a jump built in
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AMain::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AMain::ShiftKeyDown);
@@ -243,7 +245,7 @@ void AMain::MoveForward(float Value)
 {
 	// Good idea to check to make sure the Characters Controller is not a null pointer
 	// And to check that Value is not 0 (the button is being pressed)
-	if (Controller != nullptr && Value != 0.0f)
+	if (Controller != nullptr && Value != 0.0f && MovementStatus != EMovementStatus::EMS_Dead)
 	{
 		// Gets the direction the controller is facing
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -263,7 +265,7 @@ void AMain::MoveRight(float Value)
 {
 	// Good idea to check to make sure the Characters Controller is not a null pointer
 	// And to check that Value is not 0 (the button is being pressed)
-	if (Controller != nullptr && Value != 0.0f)
+	if (Controller != nullptr && Value != 0.0f && MovementStatus != EMovementStatus::EMS_Dead)
 	{
 		// Gets the direction the controller is facing
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -302,6 +304,8 @@ void AMain::LMBDown()
 {
 	bLMBDown = true;
 
+	if (MovementStatus == EMovementStatus::EMS_Dead) return;
+
 	if (ActiveOverlappingItem && !bAttacking)
 	{
 		AWeapon* Weapon = Cast<AWeapon>(ActiveOverlappingItem);
@@ -313,7 +317,7 @@ void AMain::LMBDown()
 	}
 	else if (EquippedWeapon)
 	{
-		if (!bAttacking)
+		if (!bAttacking && MovementStatus != EMovementStatus::EMS_Dead)
 		{
 			Attack();
 		}
@@ -344,9 +348,17 @@ void AMain::Die()
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && CombatMontage)
 	{
-		AnimInstance->Montage_Play(CombatMontage, 1.0f);
+		AnimInstance->Montage_Play(CombatMontage, 1.2f);
 		AnimInstance->Montage_JumpToSection(FName("Death"));
 	}
+	SetMovementStatus(EMovementStatus::EMS_Dead);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void AMain::DeathEnd()
+{
+	GetMesh()->bPauseAnims = true;
+	GetMesh()->bNoSkeletonUpdate = true;
 }
 
 void AMain::SetMovementStatus(EMovementStatus Status)
@@ -360,6 +372,14 @@ void AMain::SetMovementStatus(EMovementStatus Status)
 	else
 	{
 		GetCharacterMovement()->MaxWalkSpeed = RunningSpeed;
+	}
+}
+
+void AMain::Jump()
+{
+	if (MovementStatus != EMovementStatus::EMS_Dead)
+	{
+		Super::Jump();
 	}
 }
 

@@ -337,7 +337,6 @@ void AEnemy::DeathEnd()
 	GetMesh()->bPauseAnims = true;
 	GetMesh()->bNoSkeletonUpdate = true;
 	GetWorldTimerManager().SetTimer(DeathTimer, this, &AEnemy::Disappear, DeathDelay);
-	UE_LOG(LogTemp, Warning, TEXT("DISAPPEAR!"))
 }
 
 bool AEnemy::Alive()
