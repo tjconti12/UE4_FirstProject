@@ -367,6 +367,18 @@ void AMain::IncrementCoins(int32 Amount)
 	Coins += Amount;
 }
 
+void AMain::IncrementHealth(float Amount)
+{
+	if (Health + Amount >= MaxHealth)
+	{
+		Health = MaxHealth;
+	}
+	else
+	{
+		Health += Amount;
+	}
+}
+
 void AMain::Die()
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -492,4 +504,47 @@ float AMain::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEve
 	DecrementHealth(DamageAmount);
 
 	return DamageAmount;
+}
+
+void AMain::UpdateCombatTarget()
+{
+	TArray<AActor*> OverlappingActors;
+	GetOverlappingActors(OverlappingActors, EnemyFilter);
+	
+	if (OverlappingActors.Num() == 0)
+	{
+		if (MainPlayerController)
+		{
+			MainPlayerController->RemoveEnemyHealthBar();
+		}
+		return;
+	}
+	AEnemy* ClosestEnemy = Cast<AEnemy>(OverlappingActors[0]);
+	if (ClosestEnemy)
+	{
+		FVector MainLocation = GetActorLocation();
+		float MinDistance = (ClosestEnemy->GetActorLocation() - MainLocation).Size();
+
+		for (auto Actor : OverlappingActors)
+		{
+			AEnemy* Enemy = Cast<AEnemy>(Actor);
+			if (Enemy)
+			{
+				float DistanceToActor = (Enemy->GetActorLocation() - MainLocation).Size();
+				if (DistanceToActor < MinDistance)
+				{
+					MinDistance = DistanceToActor;
+					ClosestEnemy = Enemy;
+				}
+			}
+			
+		}
+		if (MainPlayerController)
+		{
+			MainPlayerController->DisplayEnemyHealthBar();
+		}
+		SetCombatTarget(ClosestEnemy);
+		bHasCombatTarget = true;
+	}
+	
 }

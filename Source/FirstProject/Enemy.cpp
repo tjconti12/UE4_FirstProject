@@ -66,6 +66,9 @@ void AEnemy::BeginPlay()
 	CombatCollision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
 	CombatCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	CombatCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 }
 
 // Called every frame
@@ -107,10 +110,9 @@ void AEnemy::AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AA
 				Main->SetCombatTarget(nullptr);
 			}
 			Main->SetHasCombatTarget(false);
-			if (Main->MainPlayerController)
-			{
-				Main->MainPlayerController->RemoveEnemyHealthBar();
-			}
+			
+			Main->UpdateCombatTarget();
+			
 		}
 	}
 }
@@ -122,12 +124,11 @@ void AEnemy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent
 		AMain* Main = Cast<AMain>(OtherActor);
 			if (Main)
 			{
+
 				Main->SetCombatTarget(this);
 				Main->SetHasCombatTarget(true);
-				if (Main->MainPlayerController)
-				{
-					Main->MainPlayerController->DisplayEnemyHealthBar();
-				}
+				
+				Main->UpdateCombatTarget();
 
 				CombatTarget = Main;
 				bOverlappingCombatSphere = true;
@@ -151,7 +152,13 @@ void AEnemy::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, 
 		if (Main)
 		{
 			bOverlappingCombatSphere = false;
-			/*bAttacking = false;*/
+			if (Main->CombatTarget == this)
+			{
+				Main->SetCombatTarget(nullptr);
+				Main->bHasCombatTarget = false;
+				Main->UpdateCombatTarget();
+			}
+			
 			UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 			if (AnimInstance && EnemyMovementStatus != EEnemyMovementStatus::EMS_Attacking)
 			{
@@ -301,7 +308,7 @@ float AEnemy::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEv
 	{
 		Health -= DamageAmount;
 		SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Dead);
-		Die();
+		Die(DamageCauser);
 		
 	}
 	else
@@ -312,7 +319,7 @@ float AEnemy::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEv
 	return DamageAmount;
 }
 
-void AEnemy::Die()
+void AEnemy::Die(AActor* Causer)
 {
 	SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Dead);
 	CombatCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -325,13 +332,15 @@ void AEnemy::Die()
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("DEAD!"))
 		AnimInstance->Montage_Play(CombatMontage, 1.0f);
 		AnimInstance->Montage_JumpToSection(FName("Death"), CombatMontage);
-
 	}
 	
-
+	AMain* Main = Cast<AMain>(Causer);
+	if (Main)
+	{
+		Main->UpdateCombatTarget();
+	}
 	
 }
 
