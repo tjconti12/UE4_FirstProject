@@ -80,7 +80,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	float DeathDelay;
 
-
+	// To see if enemy is current target by the main character
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	bool bIsTarget;
 
 protected:
 	// Called when the game starts or when spawned

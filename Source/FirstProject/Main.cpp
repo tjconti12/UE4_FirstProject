@@ -530,6 +530,7 @@ void AMain::UpdateCombatTarget()
 			AEnemy* Enemy = Cast<AEnemy>(Actor);
 			if (Enemy)
 			{
+				Enemy->bIsTarget = false;
 				float DistanceToActor = (Enemy->GetActorLocation() - MainLocation).Size();
 				if (DistanceToActor < MinDistance)
 				{
@@ -545,6 +546,7 @@ void AMain::UpdateCombatTarget()
 		}
 		SetCombatTarget(ClosestEnemy);
 		bHasCombatTarget = true;
+		ClosestEnemy->bIsTarget = true;
 	}
 	
 }

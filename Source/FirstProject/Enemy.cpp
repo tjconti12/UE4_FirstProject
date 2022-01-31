@@ -42,7 +42,9 @@ AEnemy::AEnemy()
 
 	EnemyMovementStatus = EEnemyMovementStatus::EMS_Idle;
 
-	DeathDelay = 3.f;
+	DeathDelay = 2.f;
+
+	bIsTarget = false;
 }
 
 // Called when the game starts or when spawned
@@ -69,6 +71,17 @@ void AEnemy::BeginPlay()
 
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+	
+	// Test
+	/*GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);*/
+
+
+	// Cause enemy to chase character as soon as its spawned
+	AMain* Main = Cast<AMain>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	if (Main)
+	{
+		MoveToTarget(Main);
+	}
 }
 
 // Called every frame
@@ -88,19 +101,21 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AEnemy::AgroSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor && Alive())
+	// Decided to have enemy chase character when it is spawned. Uncomment out later if needed
+	/*if (OtherActor && Alive())
 	{
 		AMain* Main = Cast<AMain>(OtherActor);
 		if (Main)
 		{
 			MoveToTarget(Main);
 		}
-	}
+	}*/
 }
 
 void AEnemy::AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (OtherActor)
+	// Decided to have enemy chase character when it is spawned. Uncomment out later if needed
+	/*if (OtherActor)
 	{
 		AMain* Main = Cast<AMain>(OtherActor);
 		if (Main)
@@ -114,7 +129,7 @@ void AEnemy::AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AA
 			Main->UpdateCombatTarget();
 			
 		}
-	}
+	}*/
 }
 
 void AEnemy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -125,8 +140,8 @@ void AEnemy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent
 			if (Main)
 			{
 
-				Main->SetCombatTarget(this);
-				Main->SetHasCombatTarget(true);
+				/*Main->SetCombatTarget(this);
+				Main->SetHasCombatTarget(true);*/
 				
 				Main->UpdateCombatTarget();
 
@@ -146,6 +161,7 @@ void AEnemy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent
 
 void AEnemy::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+	bIsTarget = false;
 	if (OtherActor)
 	{
 		AMain* Main = Cast<AMain>(OtherActor);
@@ -188,7 +204,7 @@ void AEnemy::MoveToTarget(AMain* Target)
 		// Needs both the MoveRequest and FNavPath structs
 		FAIMoveRequest MoveRequest;
 		MoveRequest.SetGoalActor(Target);
-		MoveRequest.SetAcceptanceRadius(20.0f);
+		MoveRequest.SetAcceptanceRadius(25.0f);
 
 		// The information gets filled in for us. We just need to declare it
 		FNavPathSharedPtr NavPath;
@@ -206,6 +222,7 @@ void AEnemy::CombatOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AAct
 	if (OtherActor)
 	{
 		AMain* Main = Cast<AMain>(OtherActor);
+		// Allow Character to only attack one enemy at a time 
 		if (Main)
 		{
 			if (Main->HitParticles)
