@@ -370,7 +370,7 @@ void AEnemy::Die(AActor* Causer)
 	{
 		Main->UpdateCombatTarget();
 	}
-	
+	DieBP();
 }
 
 void AEnemy::DeathEnd()

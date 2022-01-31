@@ -13,5 +13,16 @@ UCLASS()
 class FIRSTPROJECT_API AFirstProjectGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
+
+
+public:
+
+	AFirstProjectGameModeBase();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Game")
+	int32 AmountAlive;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Game")
+	int32 CurrentRound;
 	
 };

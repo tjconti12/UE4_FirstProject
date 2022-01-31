@@ -558,7 +558,7 @@ void AMain::UpdateCombatTarget()
 		}
 		if (MainPlayerController)
 		{
-			MainPlayerController->DisplayEnemyHealthBar();
+			/*MainPlayerController->DisplayEnemyHealthBar();*/
 		}
 		SetCombatTarget(ClosestEnemy);
 		bHasCombatTarget = true;

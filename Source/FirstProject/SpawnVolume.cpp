@@ -56,31 +56,25 @@ FVector ASpawnVolume::GetSpawnPoint()
 // The _Implementation is to tell the engine that this is the implementation in C++ (due to the UFUNCTION macro BlueprintNativeEvent)
 void ASpawnVolume::SpawnOurActor_Implementation(UClass* ToSpawn, const FVector& Location)
 {
-	for (int i = 0; i < NumToSpawn; i++)
+	if (ToSpawn)
 	{
-		if (ToSpawn)
+		UWorld* World = GetWorld();
+		FActorSpawnParameters SpawnParams;
+
+		if (World)
 		{
-			UWorld* World = GetWorld();
-			FActorSpawnParameters SpawnParams;
+		
+			AActor* Actor = World->SpawnActor<AActor>(ToSpawn, Location, FRotator(0.f), SpawnParams);
 
-			if (World)
+			AEnemy* Enemy = Cast<AEnemy>(Actor);
+			if (Enemy)
 			{
-				FVector Extent = SpawningBox->GetScaledBoxExtent();
-				FVector Origin = SpawningBox->GetComponentLocation();
+				Enemy->SpawnDefaultController();
 
-				FVector Point = UKismetMathLibrary::RandomPointInBoundingBox(Origin, Extent);
-				AActor* Actor = World->SpawnActor<AActor>(ToSpawn, Point, FRotator(0.f), SpawnParams);
-
-				AEnemy* Enemy = Cast<AEnemy>(Actor);
-				if (Enemy)
+				AAIController* AICont = Cast<AAIController>(Enemy->GetController());
+				if (AICont)
 				{
-					Enemy->SpawnDefaultController();
-
-					AAIController* AICont = Cast<AAIController>(Enemy->GetController());
-					if (AICont)
-					{
-						Enemy->AIController = AICont;
-					}
+					Enemy->AIController = AICont;
 				}
 			}
 		}

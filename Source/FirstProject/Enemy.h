@@ -138,6 +138,9 @@ public:
 	
 	void Die(AActor* Causer);
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
+	void DieBP();
+
 	UFUNCTION(BlueprintCallable)
 	void DeathEnd();
 
