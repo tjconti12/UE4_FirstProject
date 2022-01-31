@@ -13,6 +13,7 @@
 #include "TimerManager.h"
 #include "Components/CapsuleComponent.h"
 #include "MainPlayerController.h"
+#include "Weapon.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -326,6 +327,17 @@ float AEnemy::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEv
 		Health -= DamageAmount;
 		SetEnemyMovementStatus(EEnemyMovementStatus::EMS_Dead);
 		Die(DamageCauser);
+		AMain* Main = Cast<AMain>(DamageCauser);
+		if (Main)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("AMain"));
+			Main->NumKilledThisLevel++;
+		}
+		AWeapon* Weapon = Cast<AWeapon>(DamageCauser);
+		if (Weapon)
+		{
+			Weapon->OwningActor->NumKilledThisLevel++;
+		}
 		
 	}
 	else

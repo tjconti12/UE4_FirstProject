@@ -81,6 +81,12 @@ AMain::AMain()
 
 	bMovingForward = false;
 	bMovingRight = false;
+
+	CurrentLevel = 1;
+
+	NumKilledThisLevel = 0;
+
+	bMoveToNext = false;
 }
 
 // Called when the game starts or when spawned
@@ -213,6 +219,16 @@ void AMain::Tick(float DeltaTime)
 		{
 			MainPlayerController->EnemyLocation = CombatTargetLocation;
 		}
+	}
+
+	// Check to see if we should increment level
+	if (NumKilledThisLevel == CurrentLevel)
+	{
+		CurrentLevel++;
+		NumKilledThisLevel = 0;
+		
+		// This allows us to start spawning again in the EnemyVolume_BP
+		bMoveToNext = true;
 	}
 }
 

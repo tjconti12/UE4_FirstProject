@@ -81,4 +81,8 @@ public:
 	AController* WeaponInstigator;
 
 	FORCEINLINE void SetInstigator(AController* Inst) { WeaponInstigator = Inst; }
+
+	// Ref to the character that is holding the weapon
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Owner")
+	AMain* OwningActor;
 };

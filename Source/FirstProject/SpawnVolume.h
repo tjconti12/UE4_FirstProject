@@ -32,6 +32,16 @@ public:
 
 	TArray<TSubclassOf<AActor>> SpawnArray;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
+	int32 NumToSpawn;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
+	bool bDoneSpawning;
+
+
+	FTimerHandle SpawnTimer;
+	FTimerDelegate SpawnDel;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -49,4 +59,7 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Spawning")
 	void SpawnOurActor(UClass* ToSpawn, const FVector& Location);
+
+	UFUNCTION()
+	void CompleteSpawn(UClass* ToSpawn, const FVector& Location);
 };

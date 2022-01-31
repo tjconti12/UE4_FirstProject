@@ -73,6 +73,7 @@ void AWeapon::Equip(AMain* Char)
 {
 	if (Char)
 	{
+		OwningActor = Char;
 		SetInstigator(Char->GetController());
 
 		// Prevents the camera from zooming in if the weapon gets between the camera and the character

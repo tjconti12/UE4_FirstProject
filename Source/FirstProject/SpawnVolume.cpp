@@ -7,6 +7,7 @@
 #include "Engine/World.h"
 #include "Enemy.h"
 #include "AIController.h"
+#include "TimerManager.h"
 
 // Sets default values
 ASpawnVolume::ASpawnVolume()
@@ -15,6 +16,10 @@ ASpawnVolume::ASpawnVolume()
 	PrimaryActorTick.bCanEverTick = true;
 
 	SpawningBox = CreateDefaultSubobject<UBoxComponent>(TEXT("SpawningBox"));
+
+	NumToSpawn = 1;
+
+	bDoneSpawning = false;
 
 }
 
@@ -48,31 +53,43 @@ FVector ASpawnVolume::GetSpawnPoint()
 	
 	return Point;
 }
-// THe _Implementation is to tell the engine that this is the implementation in C++ (due to the UFUNCTION macro BlueprintNativeEvent)
+// The _Implementation is to tell the engine that this is the implementation in C++ (due to the UFUNCTION macro BlueprintNativeEvent)
 void ASpawnVolume::SpawnOurActor_Implementation(UClass* ToSpawn, const FVector& Location)
 {
-	if (ToSpawn)
+	for (int i = 0; i < NumToSpawn; i++)
 	{
-		UWorld* World = GetWorld();
-		FActorSpawnParameters SpawnParams;
-
-		if (World)
+		if (ToSpawn)
 		{
-			AActor* Actor = World->SpawnActor<AActor>(ToSpawn, Location, FRotator(0.f), SpawnParams);
+			UWorld* World = GetWorld();
+			FActorSpawnParameters SpawnParams;
 
-			AEnemy* Enemy = Cast<AEnemy>(Actor);
-			if (Enemy)
+			if (World)
 			{
-				Enemy->SpawnDefaultController();
+				FVector Extent = SpawningBox->GetScaledBoxExtent();
+				FVector Origin = SpawningBox->GetComponentLocation();
 
-				AAIController* AICont = Cast<AAIController>(Enemy->GetController());
-				if (AICont)
+				FVector Point = UKismetMathLibrary::RandomPointInBoundingBox(Origin, Extent);
+				AActor* Actor = World->SpawnActor<AActor>(ToSpawn, Point, FRotator(0.f), SpawnParams);
+
+				AEnemy* Enemy = Cast<AEnemy>(Actor);
+				if (Enemy)
 				{
-					Enemy->AIController = AICont;
+					Enemy->SpawnDefaultController();
+
+					AAIController* AICont = Cast<AAIController>(Enemy->GetController());
+					if (AICont)
+					{
+						Enemy->AIController = AICont;
+					}
 				}
 			}
 		}
 	}
+}
+
+void ASpawnVolume::CompleteSpawn(UClass* ToSpawn, const FVector& Location)
+{
+	
 }
 
 TSubclassOf<AActor> ASpawnVolume::GetSpawnActor()

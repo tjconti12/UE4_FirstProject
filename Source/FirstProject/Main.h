@@ -145,6 +145,15 @@ public:
 
 	void Die();
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Game")
+	int32 CurrentLevel;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Game")
+	int32 NumKilledThisLevel;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game")
+	bool bMoveToNext;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -218,4 +227,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	TSubclassOf<AEnemy> EnemyFilter;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlayNextRound();
 };
