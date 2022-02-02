@@ -24,5 +24,8 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Game")
 	int32 CurrentRound;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Game")
+	bool bShouldSpawn;
 	
 };
