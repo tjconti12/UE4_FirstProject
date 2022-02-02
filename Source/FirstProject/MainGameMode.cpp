@@ -9,36 +9,58 @@ AMainGameMode::AMainGameMode()
 	AmountAlive = 0;
 	CurrentRound = 1;
 	NumSpawned = 0;
+	SpawnQuery = 0;
+
+	bDoneSpawning = false;
 
 	// Initialize as true to spawn on first round
 	bShouldSpawn = true;
 
-	if (Spawn_1)
-	{
-		SpawnArray.Add(Spawn_1);
-	}
-	if (Spawn_2)
-	{
-		SpawnArray.Add(Spawn_2);
-	}
-	if (Spawn_3 && bDoorOpen)
-	{
-		SpawnArray.Add(Spawn_3);
-	}
-	if (Spawn_4 && bDoorOpen)
-	{
-		SpawnArray.Add(Spawn_4);
-	}
+	// Call to get the first spawn point
+	InitialSpawn();
 }
 
 
 void AMainGameMode::Tick(float DeltaTime)
 {
+	Super::Tick(DeltaTime);
+	if (AmountAlive == 0 && bDoneSpawning)
+	{
+		CurrentRound++;
+		bDoneSpawning = false;
+		bShouldSpawn = true;
+	}
+	
+}
+
+void AMainGameMode::InitialSpawn()
+{
+	int32 random = FMath::RandRange(1, 2);
+
+	switch (random)
+	{
+	case 0:
+		VolumeToSpawn = Spawn_1;
+		break;
+	case 1:
+		VolumeToSpawn = Spawn_2;
+		break;
+	case 2:
+		VolumeToSpawn = Spawn_3;
+		break;
+	case 3:
+		VolumeToSpawn = Spawn_4;
+		break;
+	default:
+		break;
+	}
+}
+
+void AMainGameMode::TriggerSpawn()
+{
 	if (bShouldSpawn)
 	{
-		/*int32 random = FMath::RandRange(0, SpawnArray.Num() - 1)*/;
-
-		int32 random = 0;
+		int32 random = FMath::RandRange(1, 2);
 		
 		switch (random)
 		{
@@ -57,11 +79,6 @@ void AMainGameMode::Tick(float DeltaTime)
 		default:
 			break;
 		}
-
 		
-		// Increment the num spawned
-		NumSpawned++;
-
 	}
-	
 }

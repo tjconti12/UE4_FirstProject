@@ -38,6 +38,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
 	bool bDoneSpawning;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
+	bool bWaitSpawn;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning")
+	class AMainGameMode* GameRef;
+
+	// Ref to Blueprint Implementation
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spawning")
+	TSubclassOf<ASpawnVolume> SpawnVolumeBPRef;
+
 
 	FTimerHandle SpawnTimer;
 	FTimerDelegate SpawnDel;
@@ -57,8 +67,8 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Spawning")
 	TSubclassOf<AActor> GetSpawnActor();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Spawning")
-	void SpawnOurActor(UClass* ToSpawn, const FVector& Location);
+	UFUNCTION(BlueprintCallable)
+	void SpawnOurActor();
 
 	UFUNCTION()
 	void CompleteSpawn(UClass* ToSpawn, const FVector& Location);

@@ -30,7 +30,13 @@ public:
 	int32 NumSpawned;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Game")
+	int32 SpawnQuery;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Game")
 	bool bShouldSpawn;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Game")
+	bool bDoneSpawning;
 
 	// To determine if the other spawn points should be used once the door is open
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Game")
@@ -39,30 +45,27 @@ public:
 	
 	// The spawn points that can be selected in BP
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
-	class ASpawnVolume* Spawn_1;
+	TSubclassOf<class ASpawnVolume> Spawn_1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
-	ASpawnVolume* Spawn_2;
+	TSubclassOf<ASpawnVolume> Spawn_2;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
-	ASpawnVolume* Spawn_3;
+	TSubclassOf<ASpawnVolume> Spawn_3;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
-	ASpawnVolume* Spawn_4;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning")
-	bool bShouldSpawn_1;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning")
-	bool bShouldSpawn_2;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning")
-	bool bShouldSpawn_3;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning")
-	bool bShouldSpawn_4;
+	TSubclassOf<ASpawnVolume> Spawn_4;
 
 	// Array to hold the spawn points if they are valid
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spawning")
 	TArray<ASpawnVolume*> SpawnArray;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spawning")
-	ASpawnVolume* VolumeToSpawn;
+	TSubclassOf<ASpawnVolume> VolumeToSpawn;
+
+	UFUNCTION()
+	void InitialSpawn();
+
+	UFUNCTION()
+	void TriggerSpawn();
 };

@@ -8,6 +8,8 @@
 #include "Enemy.h"
 #include "AIController.h"
 #include "TimerManager.h"
+#include "Kismet/GameplayStatics.h"
+#include "MainGameMode.h"
 
 // Sets default values
 ASpawnVolume::ASpawnVolume()
@@ -20,6 +22,8 @@ ASpawnVolume::ASpawnVolume()
 	NumToSpawn = 1;
 
 	bDoneSpawning = false;
+
+	bWaitSpawn = false;
 
 }
 
@@ -35,6 +39,8 @@ void ASpawnVolume::BeginPlay()
 		SpawnArray.Add(Actor_3);
 		SpawnArray.Add(Actor_4);
 	}
+
+	GameRef = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 }
 
 // Called every frame
@@ -42,6 +48,41 @@ void ASpawnVolume::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (GameRef && !bWaitSpawn)
+	{
+		bWaitSpawn = true;
+		if (GameRef->bShouldSpawn)
+		{
+			FTimerHandle TimerHandle;
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]()
+				{
+						if (SpawnVolumeBPRef) {
+
+							if (GameRef->VolumeToSpawn == SpawnVolumeBPRef)
+							{
+								GameRef->NumSpawned++;
+								SpawnOurActor();
+								GameRef->TriggerSpawn();
+								
+								if (GameRef->NumSpawned == GameRef->CurrentRound)
+								{
+									GameRef->bShouldSpawn = false;
+									GameRef->bDoneSpawning = true;
+									GameRef->NumSpawned = 0;
+								}
+
+							}
+						}
+						bWaitSpawn = false;
+				}, 3, false);
+		}
+		else
+		{
+			bWaitSpawn = false;
+		
+		}
+		
+	}
 }
 
 FVector ASpawnVolume::GetSpawnPoint()
@@ -54,31 +95,33 @@ FVector ASpawnVolume::GetSpawnPoint()
 	return Point;
 }
 // The _Implementation is to tell the engine that this is the implementation in C++ (due to the UFUNCTION macro BlueprintNativeEvent)
-void ASpawnVolume::SpawnOurActor_Implementation(UClass* ToSpawn, const FVector& Location)
+void ASpawnVolume::SpawnOurActor()
 {
-	if (ToSpawn)
-	{
-		UWorld* World = GetWorld();
-		FActorSpawnParameters SpawnParams;
-
-		if (World)
-		{
-		
-			AActor* Actor = World->SpawnActor<AActor>(ToSpawn, Location, FRotator(0.f), SpawnParams);
-
-			AEnemy* Enemy = Cast<AEnemy>(Actor);
-			if (Enemy)
+			UClass* ToSpawn = GetSpawnActor();
+			FVector Location = GetSpawnPoint();
+			if (ToSpawn)
 			{
-				Enemy->SpawnDefaultController();
+				UWorld* World = GetWorld();
+				FActorSpawnParameters SpawnParams;
 
-				AAIController* AICont = Cast<AAIController>(Enemy->GetController());
-				if (AICont)
+				if (World)
 				{
-					Enemy->AIController = AICont;
+
+					AActor* Actor = World->SpawnActor<AActor>(ToSpawn, Location, FRotator(0.f), SpawnParams);
+					
+					AEnemy* Enemy = Cast<AEnemy>(Actor);
+					if (Enemy)
+					{
+						Enemy->SpawnDefaultController();
+		
+						AAIController* AICont = Cast<AAIController>(Enemy->GetController());
+						if (AICont)
+						{
+							Enemy->AIController = AICont;
+						}
+					}
 				}
 			}
-		}
-	}
 }
 
 void ASpawnVolume::CompleteSpawn(UClass* ToSpawn, const FVector& Location)
