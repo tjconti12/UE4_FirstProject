@@ -84,6 +84,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	bool bIsTarget;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Game")
+	class AMainGameMode* GameRef;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

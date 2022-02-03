@@ -14,6 +14,7 @@
 #include "Components/CapsuleComponent.h"
 #include "MainPlayerController.h"
 #include "Weapon.h"
+#include "MainGameMode.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -46,12 +47,38 @@ AEnemy::AEnemy()
 	DeathDelay = 2.f;
 
 	bIsTarget = false;
+
+	
 }
 
 // Called when the game starts or when spawned
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+
+	GameRef = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameRef)
+	{
+		int Round = GameRef->CurrentRound;
+		// Generate Random Health
+		float rand = FMath::FRandRange(1, 10);
+		// float health = 10.f + Round;
+		float health;
+		if (rand > 9)
+		{
+			health = 10.f + (Round * 20);
+		}
+		else
+		{
+			health = 10.f + (Round * rand);
+		}
+
+		Health = health;
+		MaxHealth = health;
+	}
+
+	bOverlappingCombatSphere = false;
+	CombatTarget = nullptr;
 	
 	// Gets and casts the AI controller from the enemy
 	AIController = Cast<AAIController>(GetController());
@@ -83,6 +110,8 @@ void AEnemy::BeginPlay()
 	{
 		MoveToTarget(Main);
 	}
+
+	
 }
 
 // Called every frame
