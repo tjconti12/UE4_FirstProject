@@ -73,7 +73,7 @@ void AWeapon::Equip(AMain* Char)
 {
 	if (Char)
 	{
-		OwningActor = Char;
+		OwningActor = Cast<AMain>(Char);
 		SetInstigator(Char->GetController());
 
 		// Prevents the camera from zooming in if the weapon gets between the camera and the character
@@ -131,6 +131,10 @@ void AWeapon::CombatOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AAc
 			if (DamageTypeClass)
 			{
 				UGameplayStatics::ApplyDamage(Enemy, Damage, WeaponInstigator, this, DamageTypeClass);
+			}
+			if (OwningActor)
+			{
+				OwningActor->Coins++;
 			}
 		}
 	}

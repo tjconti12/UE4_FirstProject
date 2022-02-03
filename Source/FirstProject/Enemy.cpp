@@ -140,6 +140,11 @@ void AEnemy::AgroSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, 
 			MoveToTarget(Main);
 		}
 	}*/
+	AMain* Main = Cast<AMain>(OtherActor);
+	if (Main)
+	{
+		MainRef = Main;
+	}
 }
 
 void AEnemy::AgroSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
@@ -394,10 +399,11 @@ void AEnemy::Die(AActor* Causer)
 		AnimInstance->Montage_JumpToSection(FName("Death"), CombatMontage);
 	}
 	
-	AMain* Main = Cast<AMain>(Causer);
-	if (Main)
+	// AMain* Main = Cast<AMain>(Causer);
+	if (MainRef)
 	{
-		Main->UpdateCombatTarget();
+		MainRef->UpdateCombatTarget();
+		MainRef->Coins = (MainRef->Coins + 10);
 	}
 	DieBP();
 }

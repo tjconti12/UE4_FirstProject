@@ -151,4 +151,7 @@ public:
 	bool Alive();
 
 	void Disappear();
+
+	UPROPERTY()
+	AMain* MainRef;
 };
