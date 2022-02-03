@@ -26,6 +26,16 @@ void AMainPlayerController::BeginPlay()
 		FVector2D Alignment(0.f, 0.f);
 		EnemyHealthBar->SetAlignmentInViewport(Alignment);
 	}
+
+	if (WInfoWidget)
+	{
+		InfoWidget = CreateWidget<UUserWidget>(this, WInfoWidget);
+		if (InfoWidget)
+		{
+			InfoWidget->AddToViewport();
+			InfoWidget->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
 }
 
 void AMainPlayerController::DisplayEnemyHealthBar()
@@ -43,6 +53,24 @@ void AMainPlayerController::RemoveEnemyHealthBar()
 	{
 		bEnemyHealthBarVisible = false;
 		EnemyHealthBar->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
+void AMainPlayerController::DisplayInfoWidget()
+{
+	if (InfoWidget)
+	{
+		bInfoWidgetVisible = true;
+		InfoWidget->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void AMainPlayerController::RemoveInfoWidget()
+{
+	if (InfoWidget)
+	{
+		bInfoWidgetVisible = false;
+		InfoWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
 

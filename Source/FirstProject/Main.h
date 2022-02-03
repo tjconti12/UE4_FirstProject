@@ -189,6 +189,12 @@ public:
 	void LMBDown();
 	void LMBUp();
 
+	bool bActionDown;
+	void ActionDown();
+	void ActionUp();
+
+	bool OverlappingDoor;
+
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
@@ -230,4 +236,16 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayNextRound();
+
+	// For testing
+	class AMainGameMode* GameRef;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Test")
+	int32 Alive;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Test")
+	int32 NumSpawned;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Test")
+	bool bDoneSpawning;
 };

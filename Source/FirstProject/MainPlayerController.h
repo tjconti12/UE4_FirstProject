@@ -29,6 +29,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Widgets")
 	UUserWidget* EnemyHealthBar;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<UUserWidget> WInfoWidget;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Widgets")
+	UUserWidget* InfoWidget;
+
 
 	bool bEnemyHealthBarVisible;
 
@@ -37,6 +43,16 @@ public:
 	void RemoveEnemyHealthBar();
 
 	FVector EnemyLocation;
+
+	// For the info widget
+
+	bool bInfoWidgetVisible;
+
+	void DisplayInfoWidget();
+
+	void RemoveInfoWidget();
+
+	
 
 protected:
 	virtual void BeginPlay() override;

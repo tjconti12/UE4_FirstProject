@@ -68,7 +68,7 @@ void ASpawnVolume::Tick(float DeltaTime)
 								{
 									GameRef->bShouldSpawn = false;
 									GameRef->bDoneSpawning = true;
-									GameRef->NumSpawned = 0;
+									// GameRef->NumSpawned = 0;
 								}
 
 							}

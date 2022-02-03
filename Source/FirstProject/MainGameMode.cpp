@@ -11,6 +11,8 @@ AMainGameMode::AMainGameMode()
 	NumSpawned = 0;
 	SpawnQuery = 0;
 
+	bDoorOpen = false;
+
 	bDoneSpawning = false;
 
 	// Initialize as true to spawn on first round
@@ -29,13 +31,14 @@ void AMainGameMode::Tick(float DeltaTime)
 		CurrentRound++;
 		bDoneSpawning = false;
 		bShouldSpawn = true;
+		NumSpawned = 0;
 	}
 	
 }
 
 void AMainGameMode::InitialSpawn()
 {
-	int32 random = FMath::RandRange(1, 2);
+	int32 random = FMath::FRandRange(0, 1);
 
 	switch (random)
 	{
@@ -44,12 +47,6 @@ void AMainGameMode::InitialSpawn()
 		break;
 	case 1:
 		VolumeToSpawn = Spawn_2;
-		break;
-	case 2:
-		VolumeToSpawn = Spawn_3;
-		break;
-	case 3:
-		VolumeToSpawn = Spawn_4;
 		break;
 	default:
 		break;
@@ -60,7 +57,15 @@ void AMainGameMode::TriggerSpawn()
 {
 	if (bShouldSpawn)
 	{
-		int32 random = FMath::RandRange(1, 2);
+		int32 random;
+		if (bDoorOpen)
+		{
+			random = FMath::RandRange(0, 3);
+		}
+		else
+		{
+			random = FMath::RandRange(0, 1);
+		}
 		
 		switch (random)
 		{

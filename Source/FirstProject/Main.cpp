@@ -14,6 +14,8 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Enemy.h"
 #include "MainPlayerController.h"
+#include "Door.h"
+#include "MainGameMode.h"
 
 // Sets default values
 AMain::AMain()
@@ -65,6 +67,10 @@ AMain::AMain()
 	bShiftKeyDown = false;
 	bLMBDown = false;
 
+	bActionDown = false;
+	OverlappingDoor = false;
+
+
 	// Initialize Enums
 	MovementStatus = EMovementStatus::EMS_Normal;
 	StaminaStatus = EStaminaStatus::ESS_Normal;
@@ -96,12 +102,23 @@ void AMain::BeginPlay()
 
 	MainPlayerController = Cast<AMainPlayerController>(GetController());
 	
+	// Testing
+	GameRef = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 }
 
 // Called every frame
 void AMain::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	// Testing
+	if (GameRef)
+	{
+		Alive = GameRef->AmountAlive;
+		NumSpawned = GameRef->NumSpawned;
+		bDoneSpawning = GameRef->bDoneSpawning;
+	}
+	//////////////
 
 	if (MovementStatus == EMovementStatus::EMS_Dead) return;
 
@@ -260,6 +277,9 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("LMB", IE_Pressed, this, &AMain::LMBDown);
 	PlayerInputComponent->BindAction("LMB", IE_Released, this, &AMain::LMBUp);
 
+	PlayerInputComponent->BindAction("Action", IE_Pressed, this, &AMain::ActionDown);
+	PlayerInputComponent->BindAction("Action", IE_Released, this, &AMain::ActionUp);
+
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMain::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMain::MoveRight);
 
@@ -366,6 +386,25 @@ void AMain::LMBDown()
 void AMain::LMBUp()
 {
 	bLMBDown = false;
+}
+
+void AMain::ActionDown()
+{
+	bActionDown = true;
+	if (OverlappingDoor && Coins >= 500)
+	{
+		// AMainGameMode* GameRef = Cast<AMainGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+		if (GameRef)
+		{
+			GameRef->bDoorOpen = true;
+			Coins -= 500;
+		}
+	}
+}
+
+void AMain::ActionUp()
+{
+	bActionDown = false;
 }
 
 void AMain::DecrementHealth(float Amount)
