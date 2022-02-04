@@ -35,6 +35,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Widgets")
 	UUserWidget* InfoWidget;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<UUserWidget> WWeaponWidget;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Widgets")
+	UUserWidget* WeaponWidget;
+
 
 	bool bEnemyHealthBarVisible;
 
@@ -51,6 +57,14 @@ public:
 	void DisplayInfoWidget();
 
 	void RemoveInfoWidget();
+
+	// For the weapon widget
+
+	bool bWeaponWidgetVisible;
+
+	void DisplayWeaponWidget();
+
+	void RemoveWeaponWidget();
 
 	
 

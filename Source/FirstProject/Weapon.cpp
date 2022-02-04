@@ -9,6 +9,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Components/BoxComponent.h"
 #include "Enemy.h"
+#include "MainPlayerController.h"
 
 AWeapon::AWeapon()
 {
@@ -25,6 +26,10 @@ AWeapon::AWeapon()
 	WeaponState = EWeaponState::EWS_Pickup;
 
 	Damage = 25.f;
+
+	Cost = 100;
+
+	bIsFree = false;
 }
 
 void AWeapon::BeginPlay()
@@ -50,6 +55,7 @@ void AWeapon::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* O
 		if (Main && !Main->bAttacking)
 		{
 			Main->SetActiveOverlappingItem(this);
+			Main->MainPlayerController->DisplayWeaponWidget();
 		}
 	}
 
@@ -65,6 +71,7 @@ void AWeapon::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		if (Main)
 		{
 			Main->SetActiveOverlappingItem(nullptr);
+			Main->MainPlayerController->RemoveWeaponWidget();
 		}
 	}
 }

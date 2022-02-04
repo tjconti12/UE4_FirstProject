@@ -44,6 +44,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item | Combat")
 	float Damage;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game")
+	int32 Cost;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game")
+	bool bIsFree;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item | Sound")
 	USoundCue* SwingSound;
 

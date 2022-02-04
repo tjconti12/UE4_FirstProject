@@ -366,16 +366,7 @@ void AMain::LMBDown()
 
 	if (MovementStatus == EMovementStatus::EMS_Dead) return;
 
-	if (ActiveOverlappingItem && !bAttacking)
-	{
-		AWeapon* Weapon = Cast<AWeapon>(ActiveOverlappingItem);
-		if (Weapon)
-		{
-			Weapon->Equip(this);
-			SetActiveOverlappingItem(nullptr);
-		}
-	}
-	else if (EquippedWeapon)
+	if (EquippedWeapon)
 	{
 		if (!bAttacking && MovementStatus != EMovementStatus::EMS_Dead)
 		{
@@ -398,6 +389,20 @@ void AMain::ActionDown()
 		{
 			GameRef->bDoorOpen = true;
 			Coins -= 500;
+		}
+	}
+	else
+	{
+		if (ActiveOverlappingItem)
+		{
+			AWeapon* Weapon = Cast<AWeapon>(ActiveOverlappingItem);
+			if (Weapon && (Coins >= Weapon->Cost))
+			{
+				Weapon->Equip(this);
+				Coins -= Weapon->Cost;
+				SetActiveOverlappingItem(nullptr);
+				MainPlayerController->RemoveWeaponWidget();
+			}
 		}
 	}
 }

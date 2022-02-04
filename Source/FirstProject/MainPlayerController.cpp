@@ -36,6 +36,16 @@ void AMainPlayerController::BeginPlay()
 			InfoWidget->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
+
+	if (WWeaponWidget)
+	{
+		WeaponWidget = CreateWidget<UUserWidget>(this, WWeaponWidget);
+		if (WeaponWidget)
+		{
+			WeaponWidget->AddToViewport();
+			WeaponWidget->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
 }
 
 void AMainPlayerController::DisplayEnemyHealthBar()
@@ -72,6 +82,23 @@ void AMainPlayerController::RemoveInfoWidget()
 		bInfoWidgetVisible = false;
 		InfoWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
+}
+
+// bool bWeaponWidgetVisible;
+
+void AMainPlayerController::DisplayWeaponWidget()
+{
+	if (WeaponWidget)
+	{
+		bWeaponWidgetVisible = true;
+		WeaponWidget->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void AMainPlayerController::RemoveWeaponWidget()
+{
+	bWeaponWidgetVisible = false;
+	WeaponWidget->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void AMainPlayerController::Tick(float DeltaTime)
