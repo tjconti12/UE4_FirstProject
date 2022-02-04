@@ -403,7 +403,15 @@ void AEnemy::Die(AActor* Causer)
 	if (MainRef)
 	{
 		MainRef->UpdateCombatTarget();
-		MainRef->Coins = (MainRef->Coins + 10);
+		int32 AmountToIncrement;
+		AWeapon* WeaponRef = Cast<AWeapon>(Causer);
+		if (WeaponRef)
+		{
+			AmountToIncrement = WeaponRef->Damage;
+			AmountToIncrement = (AmountToIncrement / 25) * 10 - (WeaponRef->Damage / 25);
+		}
+		
+		MainRef->Coins = (MainRef->Coins += AmountToIncrement);
 	}
 	DieBP();
 }

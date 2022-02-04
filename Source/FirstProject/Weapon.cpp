@@ -141,7 +141,8 @@ void AWeapon::CombatOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AAc
 			}
 			if (OwningActor)
 			{
-				OwningActor->Coins++;
+				int32 AmountToIncrement = Damage / 25;
+				OwningActor->Coins += AmountToIncrement;
 			}
 		}
 	}
