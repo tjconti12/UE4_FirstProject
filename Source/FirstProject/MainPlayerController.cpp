@@ -46,6 +46,16 @@ void AMainPlayerController::BeginPlay()
 			WeaponWidget->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
+
+	if (WPauseMenu)
+	{
+		PauseMenu = CreateWidget<UUserWidget>(this, WPauseMenu);
+		if (PauseMenu)
+		{
+			PauseMenu->AddToViewport();
+			PauseMenu->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
 }
 
 void AMainPlayerController::DisplayEnemyHealthBar()
@@ -99,6 +109,46 @@ void AMainPlayerController::RemoveWeaponWidget()
 {
 	bWeaponWidgetVisible = false;
 	WeaponWidget->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void AMainPlayerController::DisplayPauseMenu_Implementation()
+{
+	if (PauseMenu)
+	{
+		bPauseMenuVisible = true;
+		PauseMenu->SetVisibility(ESlateVisibility::Visible);
+
+		FInputModeGameAndUI InputModeGameAndUI;
+
+		SetInputMode(InputModeGameAndUI);
+		bShowMouseCursor = true;
+	}
+}
+
+void AMainPlayerController::RemovePauseMenu_Implementation()
+{
+	if (PauseMenu)
+	{
+		bPauseMenuVisible = false;
+		
+
+		FInputModeGameOnly InputModeGameOnly;
+
+		SetInputMode(InputModeGameOnly);
+		bShowMouseCursor = false;
+	}
+}
+
+void AMainPlayerController::TogglePauseMenu()
+{
+	if (bPauseMenuVisible)
+	{
+		RemovePauseMenu();
+	}
+	else
+	{
+		DisplayPauseMenu();
+	}
 }
 
 void AMainPlayerController::Tick(float DeltaTime)

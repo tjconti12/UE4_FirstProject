@@ -41,6 +41,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Widgets")
 	UUserWidget* WeaponWidget;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+	TSubclassOf<UUserWidget> WPauseMenu;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Widgets")
+	UUserWidget* PauseMenu;
+
 
 	bool bEnemyHealthBarVisible;
 
@@ -66,6 +72,18 @@ public:
 
 	void RemoveWeaponWidget();
 
+	// For the pause menu
+	bool bPauseMenuVisible;
+
+	UFUNCTION(BlueprintNativeEvent, Category = "HUD")
+	void DisplayPauseMenu();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "HUD")
+	void RemovePauseMenu();
+
+	void TogglePauseMenu();
+
+	
 	
 
 protected:

@@ -16,6 +16,8 @@
 #include "MainPlayerController.h"
 #include "Door.h"
 #include "MainGameMode.h"
+#include "FirstSaveGame.h"
+#include "ItemStorage.h"
 
 // Sets default values
 AMain::AMain()
@@ -68,6 +70,9 @@ AMain::AMain()
 	bLMBDown = false;
 
 	bActionDown = false;
+
+	bESCDown = false;
+
 	OverlappingDoor = false;
 
 
@@ -280,18 +285,50 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Action", IE_Pressed, this, &AMain::ActionDown);
 	PlayerInputComponent->BindAction("Action", IE_Released, this, &AMain::ActionUp);
 
+	PlayerInputComponent->BindAction("ESC", IE_Pressed, this, &AMain::ESCDown);
+	PlayerInputComponent->BindAction("ESC", IE_Released, this, &AMain::ESCUp);
+
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMain::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMain::MoveRight);
 
-	// For mouse controll
+	// For mouse control
 	// Pawn already has a function for this
-	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+	// Calling Main version now, that calls the pawn version of the function
+	PlayerInputComponent->BindAxis("Turn", this, &AMain::Turn);
+	PlayerInputComponent->BindAxis("LookUp", this, &AMain::LookUp);
 
 	// For the arrow keys to look around
 	PlayerInputComponent->BindAxis("TurnRate", this, &AMain::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AMain::LookUpAtRate);
 
+}
+
+bool AMain::CanMove(float Value)
+{
+	if (MainPlayerController)
+	{
+		return (Value != 0.0f) && 
+			(MovementStatus != EMovementStatus::EMS_Dead) && 
+			!MainPlayerController->bPauseMenuVisible;
+	}
+	return false;
+}
+
+void AMain::Turn(float Value)
+{
+	if (CanMove(Value))
+	{
+		AddControllerYawInput(Value);
+	}
+}
+
+
+void AMain::LookUp(float Value)
+{
+	if (CanMove(Value))
+	{
+		AddControllerPitchInput(Value);
+	}
 }
 
 // Called to Move Character Forward
@@ -301,7 +338,7 @@ void AMain::MoveForward(float Value)
 	bMovingForward = false;
 	// Good idea to check to make sure the Characters Controller is not a null pointer
 	// And to check that Value is not 0 (the button is being pressed)
-	if (Controller != nullptr && Value != 0.0f && MovementStatus != EMovementStatus::EMS_Dead)
+	if (CanMove(Value))
 	{
 		// Gets the direction the controller is facing
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -324,7 +361,7 @@ void AMain::MoveRight(float Value)
 	bMovingRight = false;
 	// Good idea to check to make sure the Characters Controller is not a null pointer
 	// And to check that Value is not 0 (the button is being pressed)
-	if (Controller != nullptr && Value != 0.0f && MovementStatus != EMovementStatus::EMS_Dead)
+	if (CanMove(Value))
 	{
 		// Gets the direction the controller is facing
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -365,6 +402,8 @@ void AMain::LMBDown()
 	bLMBDown = true;
 
 	if (MovementStatus == EMovementStatus::EMS_Dead) return;
+
+	if (MainPlayerController) if (MainPlayerController->bPauseMenuVisible) return;
 
 	if (EquippedWeapon)
 	{
@@ -412,6 +451,21 @@ void AMain::ActionUp()
 	bActionDown = false;
 }
 
+
+void AMain::ESCDown()
+{
+	bESCDown = true;
+	if (MainPlayerController)
+	{
+		MainPlayerController->TogglePauseMenu();
+	}
+}
+
+void AMain::ESCUp()
+{
+	bESCDown = false;
+}
+
 void AMain::DecrementHealth(float Amount)
 {
 	Health -= Amount;
@@ -441,6 +495,7 @@ void AMain::IncrementHealth(float Amount)
 
 void AMain::Die()
 {
+	if (MovementStatus == EMovementStatus::EMS_Dead) return;
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && CombatMontage)
 	{
@@ -473,6 +528,7 @@ void AMain::SetMovementStatus(EMovementStatus Status)
 
 void AMain::Jump()
 {
+	if (MainPlayerController) if (MainPlayerController->bPauseMenuVisible) return;
 	if (MovementStatus != EMovementStatus::EMS_Dead)
 	{
 		Super::Jump();
@@ -609,4 +665,60 @@ void AMain::UpdateCombatTarget()
 		ClosestEnemy->bIsTarget = true;
 	}
 	
+}
+
+void AMain::SaveGame()
+{
+	UFirstSaveGame* SaveGameInstance = Cast<UFirstSaveGame>(UGameplayStatics::CreateSaveGameObject(UFirstSaveGame::StaticClass()));
+
+	SaveGameInstance->CharacterStats.Health = Health;
+	SaveGameInstance->CharacterStats.Coins = Coins;
+	SaveGameInstance->CharacterStats.Round = GameRef->CurrentRound;
+	SaveGameInstance->CharacterStats.Stamina = Stamina;
+	SaveGameInstance->CharacterStats.Location = GetActorLocation();
+	SaveGameInstance->CharacterStats.Rotation = GetActorRotation();
+	
+	if (EquippedWeapon)
+	{
+		SaveGameInstance->CharacterStats.WeaponName = EquippedWeapon->Name;
+	}
+
+	UGameplayStatics::SaveGameToSlot(SaveGameInstance, SaveGameInstance->PlayerName, SaveGameInstance->UserIndex);
+}
+
+
+void AMain::LoadGame()
+{
+	UFirstSaveGame* LoadGameInstance = Cast<UFirstSaveGame>(UGameplayStatics::CreateSaveGameObject(UFirstSaveGame::StaticClass()));
+
+	LoadGameInstance = Cast<UFirstSaveGame>(UGameplayStatics::LoadGameFromSlot(LoadGameInstance->PlayerName, LoadGameInstance->UserIndex));
+
+	Health = LoadGameInstance->CharacterStats.Health;
+	Coins = LoadGameInstance->CharacterStats.Coins;
+	GameRef->CurrentRound = LoadGameInstance->CharacterStats.Round;
+	Stamina = LoadGameInstance->CharacterStats.Stamina;
+
+	if (WeaponStorage)
+	{
+		AItemStorage* Weapons = GetWorld()->SpawnActor<AItemStorage>(WeaponStorage);
+		if (Weapons)
+		{
+			FString WeaponName = LoadGameInstance->CharacterStats.WeaponName;
+			if (Weapons->WeaponMap.Contains(WeaponName))
+			{
+				AWeapon* WeaponToEquip = GetWorld()->SpawnActor<AWeapon>(Weapons->WeaponMap[WeaponName]);
+				WeaponToEquip->Equip(this);
+			}
+		}
+	}
+	
+
+	SetActorLocation(LoadGameInstance->CharacterStats.Location);
+	SetActorRotation(LoadGameInstance->CharacterStats.Rotation);
+
+	SetMovementStatus(EMovementStatus::EMS_Normal);
+	GetMesh()->bPauseAnims = false;
+	GetMesh()->bNoSkeletonUpdate = false;
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	MainPlayerController->RemovePauseMenu();
 }

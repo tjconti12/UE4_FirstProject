@@ -26,6 +26,10 @@ public:
 
 	AWeapon();
 
+	// The name that corresponds to the saved version in the ItemStorage_BP
+	UPROPERTY(EditDefaultsOnly, Category = "SavedData")
+	FString Name;
+
 	UPROPERTY(VisibleAnywhere, BLueprintReadWrite, Category = "Item")
 	EWeaponState WeaponState;
 

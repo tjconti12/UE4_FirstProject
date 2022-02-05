@@ -36,6 +36,10 @@ public:
 	// Sets default values for this character's properties
 	AMain();
 
+	// To store the current weapon
+	UPROPERTY(EditDefaultsOnly, Category = "SavedData")
+	TSubclassOf<class AItemStorage> WeaponStorage;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	bool bHasCombatTarget;
 
@@ -171,10 +175,17 @@ public:
 	/** Called for side to side input */
 	void MoveRight(float Value);
 
+	/** Called for Yaw Rotation */
+	void Turn(float Value);
+
+	/** Called for Pitch Rotation */
+	void LookUp(float Value);
+
 	bool bMovingForward;
 
 	bool bMovingRight;
 
+	bool CanMove(float Value);
 	/** Called via input to turn at a given rate 
 	* @param Rate This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	*/
@@ -192,6 +203,10 @@ public:
 	bool bActionDown;
 	void ActionDown();
 	void ActionUp();
+
+	bool bESCDown;
+	void ESCDown();
+	void ESCUp();
 
 	bool OverlappingDoor;
 
@@ -248,4 +263,12 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Test")
 	bool bDoneSpawning;
+
+	////////////
+
+	UFUNCTION(BlueprintCallable)
+	void SaveGame();
+
+	UFUNCTION(BlueprintCallable)
+	void LoadGame();
 };
