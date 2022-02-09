@@ -7,13 +7,18 @@
 void AMainPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+	FString MapName = GetWorld()->GetMapName();
+	MapName.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);
+	
 
-	if (HUDOverlayAsset)
+
+	if (HUDOverlayAsset && MapName == "SunTemple")
 	{
 		HUDOverlay = CreateWidget<UUserWidget>(this, HUDOverlayAsset);
+		HUDOverlay->AddToViewport();
+		HUDOverlay->SetVisibility(ESlateVisibility::Visible);
 	}
-	HUDOverlay->AddToViewport();
-	HUDOverlay->SetVisibility(ESlateVisibility::Visible);
+	
 
 	if (WEnemyHealthBar)
 	{
