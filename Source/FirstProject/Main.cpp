@@ -54,7 +54,7 @@ AMain::AMain()
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 840.f, 0.0f);  // ... at this rotation rate (0 pitch, 540 yaw, 0 roll)
-	GetCharacterMovement()->JumpZVelocity = 400.f; // Set the jump velocity
+	GetCharacterMovement()->JumpZVelocity = 550.f; // Set the jump velocity
 	GetCharacterMovement()->AirControl = 0.2f; // allows small amount of control while in the air
 
 	MaxHealth = 100.f;

@@ -244,8 +244,7 @@ void AEnemy::MoveToTarget(AMain* Target)
 		// The information gets filled in for us. We just need to declare it
 		FNavPathSharedPtr NavPath;
 
-		// AIController->MoveTo(MoveRequest, &NavPath);
-		AIController->MoveToActor(Target);
+		AIController->MoveTo(MoveRequest, &NavPath);
 
 		
 
