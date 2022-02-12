@@ -1,6 +1,6 @@
 # FirstProject
 
-Developed with Unreal Engine 4
+Developed with Unreal Engine 4.27
 
 Third Person melee combat game. The game is set in a medieval temple that has been infested with zombies. The lone character, Erika Archer [(courtesy of Mixamo)](https://www.mixamo.com/#/), must fend off these creatures. The game requires both skill and strategy in order to survive as many rounds as possible.
 
@@ -12,7 +12,7 @@ I have always been interested in working with UE4. This game is a way for me to 
 
 ## Build Status
 
-Currently working on an Alpha release. All game play mechanics and characters have been created. The game is currently fully functional with the presence of a few bugs. There are more weapons and pick ups that need to be created and added to the map.
+Currently at an Alpha release. All game play mechanics and characters have been created. The game is currently fully functional without the presence of any known bugs.
 
 ## Tech/Framwork Used
 
@@ -22,7 +22,7 @@ This project is developed using Unreal Engine 4.27. All classes have been create
 
 The game features a round count, which will increment after all the zombies for that round have been destroyed. There are 4 random spawn points located throughout the level. The first two are in the player start area, while the other two are behind a closed door. Once the player reaches 500 coins, they have to option of opening the door. Once that door is opened, all 4 spawn points are used. The 4 spawn points are chosen at random throughout the round.
 
-There are also multiple weapons for pickup. There is a starting sword, which can be equipped for free. As the player earns coins, they have the option of purchasing more powerful weapons. There are also potion pickups that allow the player to replenish health. Currently, these are spawned into the level every 5 rounds.
+There are also multiple weapons for pickup. There is a starting sword, which can be equipped for free. As the player earns coins, they have the option of purchasing more powerful weapons. There is also a randomly spawned pickup between rounds, with a 1/4 chance of getting a health potion vs a coin.
 
 ## Gameplay
 
